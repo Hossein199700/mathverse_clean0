@@ -4,14 +4,14 @@ import 'storage.dart';
 class AuthService {
   static List<AppUser> users = [];
 
-  static void loadUsers() {
+  static void load() {
     List data = StorageService.getUsers();
     users = data.map((e) => AppUser.fromMap(e)).toList();
   }
 
   static bool register(String u, String p) {
-    for (var user in users) {
-      if (user.username == u) return false;
+    for (var x in users) {
+      if (x.username == u) return false;
     }
 
     users.add(AppUser(username: u, password: p));
@@ -20,17 +20,23 @@ class AuthService {
   }
 
   static AppUser? login(String u, String p) {
-    for (var user in users) {
-      if (user.username == u && user.password == p) {
-        return user;
+    for (var x in users) {
+      if (x.username == u && x.password == p) {
+        return x;
       }
     }
     return null;
   }
 
+  static void updateUser(AppUser user) {
+    int i = users.indexWhere((x) => x.username == user.username);
+    if (i != -1) {
+      users[i] = user;
+      save();
+    }
+  }
+
   static void save() {
-    StorageService.saveUsers(
-      users.map((e) => e.toMap()).toList(),
-    );
+    StorageService.saveUsers(users.map((e) => e.toMap()).toList());
   }
 }
