@@ -1,142 +1,87 @@
 import 'package:flutter/material.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 
-import 'services/storage.dart';
+import 'screens/splash_screen.dart';
+import 'screens/login_screen.dart';
+import 'screens/register_screen.dart';
+import 'screens/home.dart';
+import 'screens/quiz_screen.dart';
+import 'screens/profile_screen.dart';
+import 'screens/leaderboard.dart';
+import 'screens/feedback.dart';
+
 import 'services/auth.dart';
+import 'services/storage.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Hive.initFlutter();
-  await StorageService.init();
-  AuthService.loadUsers();
 
-  runApp(MyApp());
+  // 🧠 راه‌اندازی سیستم ذخیره‌سازی
+  await StorageService.init();
+  AuthService.load();
+
+  runApp(const MathVerseApp());
 }
 
-class MyApp extends StatelessWidget {
+class MathVerseApp extends StatelessWidget {
+  const MathVerseApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(primarySwatch: Colors.green),
-      home: LoginPage(),
-    );
-  }
-}
+      title: 'MathVerse',
 
-// ================= LOGIN =================
+      // 🎨 تم کامل اپ
+      theme: ThemeData(
+        useMaterial3: true,
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
 
-class LoginPage extends StatefulWidget {
-  @override
-  State<LoginPage> createState() => _LoginPageState();
-}
+        scaffoldBackgroundColor: Colors.white,
 
-class _LoginPageState extends State<LoginPage> {
-  final u = TextEditingController();
-  final p = TextEditingController();
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Colors.green,
+          foregroundColor: Colors.white,
+          centerTitle: true,
+          elevation: 2,
+        ),
 
-  final admins = {
-    "Hossein_1997": "1234567",
-    "AmirAli_1997": "1234567",
-  };
-
-  void login() {
-    if (admins[u.text] == p.text) {
-      Navigator.push(context,
-          MaterialPageRoute(builder: (_) => Home(role: "admin")));
-      return;
-    }
-
-    var user = AuthService.login(u.text, p.text);
-
-    if (user != null) {
-      Navigator.push(context,
-          MaterialPageRoute(builder: (_) => Home(role: "student")));
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text("Login")),
-      body: Padding(
-        padding: EdgeInsets.all(16),
-        child: Column(
-          children: [
-            TextField(controller: u, decoration: InputDecoration(labelText: "Username")),
-            TextField(controller: p, decoration: InputDecoration(labelText: "Password")),
-            SizedBox(height: 20),
-            ElevatedButton(onPressed: login, child: Text("Login")),
-            TextButton(
-              onPressed: () => Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => RegisterPage()),
-              ),
-              child: Text("Register"),
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.green,
+            foregroundColor: Colors.white,
+            padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
             ),
-          ],
+          ),
+        ),
+
+        inputDecorationTheme: InputDecorationTheme(
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
         ),
       ),
-    );
-  }
-}
 
-// ================= REGISTER =================
+      // 🌟 اولین صفحه اپ
+      home: const SplashScreen(),
 
-class RegisterPage extends StatefulWidget {
-  @override
-  State<RegisterPage> createState() => _RegisterPageState();
-}
+      // 🧭 مسیرهای کامل اپ
+      routes: {
+        '/login': (_) => const LoginScreen(),
+        '/register': (_) => const RegisterScreen(),
 
-class _RegisterPageState extends State<RegisterPage> {
-  final u = TextEditingController();
-  final p = TextEditingController();
+        '/home_student': (_) =>
+            HomePage(role: "student", username: ""),
 
-  void register() {
-    bool ok = AuthService.register(u.text, p.text);
+        '/home_admin': (_) =>
+            HomePage(role: "admin", username: ""),
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(ok ? "Created" : "User exists")),
-    );
-
-    if (ok) Navigator.pop(context);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text("Register")),
-      body: Padding(
-        padding: EdgeInsets.all(16),
-        child: Column(
-          children: [
-            TextField(controller: u, decoration: InputDecoration(labelText: "Username")),
-            TextField(controller: p, decoration: InputDecoration(labelText: "Password")),
-            SizedBox(height: 20),
-            ElevatedButton(onPressed: register, child: Text("Create")),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// ================= HOME =================
-
-class Home extends StatelessWidget {
-  final String role;
-  Home({required this.role});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text(role)),
-      body: Center(
-        child: Text(
-          role == "admin" ? "ADMIN PANEL" : "STUDENT PANEL",
-          style: TextStyle(fontSize: 24),
-        ),
-      ),
+        '/quiz': (_) => QuizScreen(),
+        '/profile': (_) => ProfileScreen(username: ""),
+        '/leaderboard': (_) => const Leaderboard(),
+        '/feedback': (_) => const FeedbackScreen(),
+      },
     );
   }
 }
