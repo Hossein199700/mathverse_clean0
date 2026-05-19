@@ -70,3 +70,35 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 }
+
+import 'package:flutter/material.dart';
+import '../services/current_user.dart';
+
+class ProfileScreen extends StatelessWidget {
+  const ProfileScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    var u = CurrentUser.user!;
+
+    return Scaffold(
+      appBar: AppBar(title: const Text("Profile")),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          children: [
+            CircleAvatar(child: Text(u.username[0])),
+
+            Text(u.username),
+            Text("Score: ${u.score}"),
+            Text("Level: ${u.level}"),
+            Text("League: ${u.league}"),
+
+            const SizedBox(height: 10),
+            Text(u.bio),
+          ],
+        ),
+      ),
+    );
+  }
+}
