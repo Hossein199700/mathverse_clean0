@@ -61,3 +61,9 @@ class _QuizScreenState extends State<QuizScreen> {
     );
   }
 }
+user.score += q.level == "hard" ? 20 : 10;
+
+if (user.score % 50 == 0) {
+  user.cup++;
+}
+AuthService.updateUser(user);
