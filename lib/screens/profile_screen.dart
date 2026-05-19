@@ -1,62 +1,69 @@
 import 'package:flutter/material.dart';
+import '../services/current_user.dart';
 
 class ProfileScreen extends StatefulWidget {
-  final String username;
-
-  ProfileScreen({required this.username});
+  const ProfileScreen({super.key});
 
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  TextEditingController bio = TextEditingController(text: "");
+  final bioController = TextEditingController();
 
-  int score = 120;
-  int cup = 2;
+  @override
+  void initState() {
+    super.initState();
+    bioController.text = CurrentUser.user?.bio ?? "";
+  }
 
   void save() {
+    if (CurrentUser.user != null) {
+      CurrentUser.user!.bio = bioController.text;
+    }
+
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("Profile Updated")),
+      const SnackBar(content: Text("Profile Saved")),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    var u = CurrentUser.user;
+
     return Scaffold(
-      appBar: AppBar(title: Text("Profile")),
+      appBar: AppBar(title: const Text("Profile")),
       body: Padding(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         child: Column(
           children: [
             CircleAvatar(
               radius: 40,
-              child: Text(widget.username[0]),
+              child: Text(u?.username.substring(0, 1) ?? "?"),
             ),
 
-            SizedBox(height: 20),
+            const SizedBox(height: 10),
 
-            Text(widget.username,
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            Text(u?.username ?? ""),
 
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
 
             TextField(
-              controller: bio,
-              decoration: InputDecoration(labelText: "Bio"),
+              controller: bioController,
+              decoration: const InputDecoration(labelText: "Bio"),
             ),
 
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
 
-            Text("Score: $score"),
-            Text("Cup: $cup"),
+            Text("Score: ${u?.score ?? 0}"),
+            Text("Cup: ${u?.cup ?? 0}"),
 
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
 
             ElevatedButton(
               onPressed: save,
-              child: Text("Save Profile"),
-            )
+              child: const Text("Save"),
+            ),
           ],
         ),
       ),
